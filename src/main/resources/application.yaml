@@ -1,0 +1,23 @@
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    drop-first: false
+  datasource:
+    url: jdbc:postgresql://localhost:5432/userDB
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+server:
+  port: 8080
+jwt:
+  secret: "mySuperSecretKeyThatIsAtLeast64CharactersLongForHS512Algorithm!!!!!!!!!!!!!!!"
