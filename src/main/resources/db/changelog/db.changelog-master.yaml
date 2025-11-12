@@ -15,3 +15,7 @@ databaseChangeLog:
   - include:
       file: insert/insert-role-data.yaml
       relativeToChangelogFile: true
+
+  - include:
+      file: insert/insert-admin-data.yaml
+      relativeToChangelogFile: true

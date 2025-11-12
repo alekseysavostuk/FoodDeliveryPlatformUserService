@@ -2,19 +2,20 @@ package v1.foodDeliveryPlatform.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
-import v1.foodDeliveryPlatform.dto.auth.AuthDto;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
 import v1.foodDeliveryPlatform.model.User;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
+@Mapper(componentModel = "spring", uses = {AddressMapper.class})
+public interface UserMapper extends BaseMapper<User, UserDto> {
 
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
+    @Override
+    @Mapping(target = "addressDtoList", source = "addressList")
+    @Mapping(target = "addressDtoList.user", ignore = true)
+    UserDto toDto(User user);
 
-    @Mapping(target = "email", source = "email")
-    @Mapping(target = "password", source = "password")
-    @Mapping(target = "name", source = "name")
+    @Override
+    @Mapping(target = "addressList", source = "addressDtoList")
+    @Mapping(target = "addressDtoList.user", ignore = true)
     User toEntity(UserDto userDto);
-
 }
+

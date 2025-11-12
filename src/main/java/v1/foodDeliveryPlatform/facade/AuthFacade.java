@@ -1,10 +1,14 @@
 package v1.foodDeliveryPlatform.facade;
 
-import v1.foodDeliveryPlatform.dto.auth.AccessTokenDto;
-import v1.foodDeliveryPlatform.dto.auth.AuthDto;
+import v1.foodDeliveryPlatform.dto.auth.JwtRequest;
+import v1.foodDeliveryPlatform.dto.auth.JwtResponse;
+import v1.foodDeliveryPlatform.dto.auth.RefreshTokenRequest;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
 
 public interface AuthFacade {
-    AccessTokenDto getToken(AuthDto authDto);
-    void saveUser(UserDto userDto);
+    JwtResponse getToken(JwtRequest jwtRequest);
+
+    UserDto createUser(UserDto userDto);
+
+    JwtResponse refreshToken(RefreshTokenRequest refreshToken);
 }

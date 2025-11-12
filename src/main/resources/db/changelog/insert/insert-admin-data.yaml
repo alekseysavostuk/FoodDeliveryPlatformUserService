@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-admin-data
+      author: Aleksey
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  value: "550e8400-e29b-41d4-a716-446655440001"
+              - column:
+                  name: email
+                  value: "admin@gmail.com"
+              - column:
+                  name: password_hash
+                  value: "$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a" # password: admin123
+              - column:
+                  name: full_name
+                  value: "admin"
+              - column:
+                  name: created_at
+                  valueComputed: CURRENT_TIMESTAMP
+
+        - insert:
+            tableName: user_role
+            columns:
+              - column:
+                  name: user_id
+                  value: "550e8400-e29b-41d4-a716-446655440001"
+              - column:
+                  name: role_id
+                  value: "2"

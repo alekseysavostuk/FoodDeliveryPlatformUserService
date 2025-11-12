@@ -1,16 +1,19 @@
 package v1.foodDeliveryPlatform.model;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -35,13 +38,13 @@ public class User {
     @Column(name = "full_name", nullable = false)
     private String name;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(name = "created_at")
-    private Date created;
+    private LocalDateTime created;
 
-    @LastModifiedDate
+    @UpdateTimestamp
     @Column(name = "updated_at")
-    private Date updated;
+    private LocalDateTime updated;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
