@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - include:
+      file: changeset/create-users-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changeset/create-role-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changeset/create-user-role-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changeset/create-address-table.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: insert/insert-role-data.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: insert/insert-admin-data.yaml
+      relativeToChangelogFile: true
