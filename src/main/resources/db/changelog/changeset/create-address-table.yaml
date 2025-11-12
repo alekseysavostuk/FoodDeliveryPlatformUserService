@@ -1,44 +1,47 @@
 databaseChangeLog:
-- changeSet:
-    id: create-address-table
-    author: Aleksey
-    changes:
-      - createTable:
-          tableName: address
-          columns:
-            - column:
-                name: id
-                type: uuid
-                constraints:
-                  primaryKey: true
-                  nullable: false
-            - column:
-                name: user_id
-                type: uuid
-                constraints:
-                  nullable: true
-                  foreignKeyName: fk_address_user
-                  references: users(id)
-            - column:
-                name: street
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
-                name: city
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
-                name: zip
-                type: varchar(255)
-            - column:
-                name: state
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
-                name: country
-                type: varchar(255)
-                constraints:
-                  nullable: false
+  - changeSet:
+      id: create-address-table
+      author: Aleksey
+      changes:
+        - createTable:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_address_user
+                    references: users(id)
+              - column:
+                  name: street
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: city
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: zip
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: state
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: country
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

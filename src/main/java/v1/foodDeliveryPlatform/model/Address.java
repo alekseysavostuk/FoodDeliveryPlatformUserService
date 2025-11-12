@@ -27,7 +27,7 @@ public class Address {
     @Column(name = "city", nullable = false)
     private String city;
 
-    @Column(name = "zip")
+    @Column(name = "zip", nullable = false)
     private String zip;
 
     @Column(name = "state", nullable = false)

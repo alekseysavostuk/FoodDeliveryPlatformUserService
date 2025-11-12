@@ -4,9 +4,9 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     drop-first: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/userDB
-    username: postgres
-    password: 1234
+    url: jdbc:postgresql://${HOST}:5432/${USER_DB}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -19,5 +19,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 server:
   port: 8080
-jwt:
-  secret: "mySuperSecretKeyThatIsAtLeast64CharactersLongForHS512Algorithm!!!!!!!!!!!!!!!"
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    access: 600000
+    refresh: 2592000000
+springdoc:
+  override-with-generic-response: false
