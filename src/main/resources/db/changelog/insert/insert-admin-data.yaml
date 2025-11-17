@@ -14,7 +14,7 @@ databaseChangeLog:
                   value: "admin@gmail.com"
               - column:
                   name: password_hash
-                  value: "$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a" # password: admin123
+                  value: "$2a$10$QHWinohimrs2j8cqSAHhH.fZXOfR40IG68yCri3rqHskSUgoXwJNK" # password: admin
               - column:
                   name: full_name
                   value: "admin"
