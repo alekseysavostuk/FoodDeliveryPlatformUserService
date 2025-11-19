@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Your Email</title>
+</head>
+<body>
+<h2>Hello, <span th:text="${name}">User</span>!</h2>
+<p>Please confirm your email address by clicking the button below:</p>
+
+<a th:href="${confirmationUrl}"
+   style="display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+    Confirm Email
+</a>
+
+<p>If the button doesn't work, copy this link:</p>
+<p th:text="${confirmationUrl}"></p>
+
+<p><small>This link will expire in 24 hours.</small></p>
+</body>
+</html>

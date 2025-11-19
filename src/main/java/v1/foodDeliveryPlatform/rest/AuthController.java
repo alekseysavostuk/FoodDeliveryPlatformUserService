@@ -8,16 +8,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import v1.foodDeliveryPlatform.dto.auth.JwtRequest;
 import v1.foodDeliveryPlatform.dto.auth.JwtResponse;
 import v1.foodDeliveryPlatform.dto.auth.RefreshTokenRequest;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
 import v1.foodDeliveryPlatform.dto.validation.OnCreate;
 import v1.foodDeliveryPlatform.facade.AuthFacade;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -41,11 +40,32 @@ public class AuthController {
 
     @PostMapping("/register")
     @PreAuthorize("permitAll()")
-    @Operation(summary = "User registration")
-    public ResponseEntity<UserDto> createUser(
+    @Operation(summary = "Register User")
+    public ResponseEntity<String> register(
             @Validated(OnCreate.class)
             @RequestBody UserDto userDto) throws MessagingException {
-        return new ResponseEntity<>(authFacade.createUser(userDto), HttpStatus.CREATED);
+        authFacade.createUser(userDto);
+        return new ResponseEntity<>("Registration email sent", HttpStatus.OK);
+    }
+
+    @GetMapping("/confirm-email")
+    @PreAuthorize("permitAll()")
+    @Operation(summary = "Confirm email")
+    public ResponseEntity<Map<String, String>> confirmEmail(
+            @RequestParam String email,
+            @RequestParam String code) {
+        try {
+            authFacade.confirmEmail(email, code);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Email confirmed successfully"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "Confirmation failed: " + e.getMessage()
+            ));
+        }
     }
 
     @PostMapping("/refresh")

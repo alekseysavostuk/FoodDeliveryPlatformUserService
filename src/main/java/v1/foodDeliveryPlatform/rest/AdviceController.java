@@ -3,6 +3,7 @@ package v1.foodDeliveryPlatform.rest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import v1.foodDeliveryPlatform.exception.AccessDeniedException;
+import v1.foodDeliveryPlatform.exception.EmailNotConfirmedException;
 import v1.foodDeliveryPlatform.exception.ExceptionBody;
 import v1.foodDeliveryPlatform.exception.ResourceNotFoundException;
 
@@ -25,6 +27,18 @@ public class AdviceController {
             final ResourceNotFoundException e
     ) {
         return new ExceptionBody(e.getMessage());
+    }
+
+    @ExceptionHandler(EmailNotConfirmedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ExceptionBody handleEmailNotConfirmed(final EmailNotConfirmedException e) {
+        return new ExceptionBody(e.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ExceptionBody handleBadCredentials(final BadCredentialsException e) {
+        return new ExceptionBody("Invalid email or password");
     }
 
     @ExceptionHandler(IllegalStateException.class)

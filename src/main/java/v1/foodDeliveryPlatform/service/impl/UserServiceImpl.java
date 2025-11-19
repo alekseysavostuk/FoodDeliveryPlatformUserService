@@ -46,6 +46,7 @@ public class UserServiceImpl implements UserService {
             @CacheEvict(value = "users_by_email", key = "#result.email")
     })
     public User updateUser(User user) {
+
         log.info("Updating user with ID: {}", user.getId());
         User currentUser = getById(user.getId());
 
@@ -53,9 +54,16 @@ public class UserServiceImpl implements UserService {
         log.debug("User update - email changed: {}, name: {}", emailChanged, user.getName());
 
         currentUser.setEmail(user.getEmail());
-        currentUser.setPassword(passwordEncoder.encode(user.getPassword()));
         currentUser.setName(user.getName());
+        currentUser.setEmailConfirmed(user.isEmailConfirmed());
         currentUser.setUpdated(LocalDateTime.now());
+
+        log.info("=== UPDATING USER ===");
+        log.info("Email: {}", user.getEmail());
+        log.info("Email confirmed: {}", user.isEmailConfirmed());
+        log.info("Password hash: {}", user.getPassword());
+        log.info("Roles: {}", user.getRoles());
+        log.info("=====================");
 
         User updatedUser = userRepository.save(currentUser);
         log.info("User successfully updated: {} ({})", updatedUser.getEmail(), updatedUser.getId());
@@ -107,5 +115,23 @@ public class UserServiceImpl implements UserService {
         });
         log.debug("Successfully fetched user by email: {} ({})", user.getEmail(), user.getId());
         return user;
+    }
+
+    @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "users", key = "#id"),
+            @CacheEvict(value = "users_by_email", allEntries = true)
+    })
+    public User changePassword(UUID id, String newRawPassword) {
+        log.info("Changing password for user ID: {}", id);
+
+        User user = getById(id);
+        user.setPassword(passwordEncoder.encode(newRawPassword));
+        user.setUpdated(LocalDateTime.now());
+
+        User updatedUser = userRepository.save(user);
+        log.info("Password changed successfully for user: {}", updatedUser.getEmail());
+        return updatedUser;
     }
 }

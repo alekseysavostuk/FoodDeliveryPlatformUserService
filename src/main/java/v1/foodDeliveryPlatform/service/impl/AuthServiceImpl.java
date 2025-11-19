@@ -12,17 +12,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import v1.foodDeliveryPlatform.dto.auth.JwtResponse;
+import v1.foodDeliveryPlatform.exception.EmailNotConfirmedException;
 import v1.foodDeliveryPlatform.model.User;
-import v1.foodDeliveryPlatform.model.enums.MailType;
 import v1.foodDeliveryPlatform.repository.RoleRepository;
 import v1.foodDeliveryPlatform.repository.UserRepository;
 import v1.foodDeliveryPlatform.security.jwt.JwtTokenProvider;
 import v1.foodDeliveryPlatform.service.AuthService;
-import v1.foodDeliveryPlatform.service.EmailService;
 import v1.foodDeliveryPlatform.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.Properties;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -34,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final EmailService emailService;
+
 
     @Override
     public JwtResponse loginWithEmailAndPassword(String email, String password) {
@@ -43,6 +42,11 @@ public class AuthServiceImpl implements AuthService {
         try {
             authenticate(email, password);
             User user = userService.getByEmail(email);
+
+            if (!user.isEmailConfirmed()) {
+                log.warn("Login failed - email not confirmed: {}", email);
+                throw new EmailNotConfirmedException("Email not confirmed. Please check your email for confirmation link.");
+            }
 
             log.debug("User authenticated successfully: {} ({})", email, user.getId());
 
@@ -69,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private void authenticate(String email, String password) {
+    public void authenticate(String email, String password) {
         log.debug("Authenticating user: {}", email);
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
@@ -96,18 +100,12 @@ public class AuthServiceImpl implements AuthService {
         user.setRoles(roleRepository.findByName("ROLE_USER"));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreated(LocalDateTime.now());
+        String confirmationCode = generateConfirmationCode();
+        user.setConfirmationCode(confirmationCode);
+        user.setEmailConfirmed(false);
 
         User savedUser = userRepository.save(user);
         log.info("User created successfully: {} ({})", savedUser.getEmail(), savedUser.getId());
-
-        try {
-            Properties params = new Properties();
-            emailService.sendEmail(savedUser, MailType.REGISTRATION, params);
-            log.debug("Registration email sent to: {}", savedUser.getEmail());
-        } catch (MessagingException e) {
-            log.error("Failed to send registration email to: {}", savedUser.getEmail(), e);
-            // Не бросаем исключение дальше - пользователь уже создан
-        }
 
         return savedUser;
     }
@@ -124,5 +122,9 @@ public class AuthServiceImpl implements AuthService {
             log.error("Token refresh failed", e);
             throw e;
         }
+    }
+
+    private String generateConfirmationCode() {
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 }

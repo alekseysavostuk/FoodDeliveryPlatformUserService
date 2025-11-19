@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import v1.foodDeliveryPlatform.dto.auth.ChangePasswordRequest;
 import v1.foodDeliveryPlatform.dto.model.AddressDto;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
 import v1.foodDeliveryPlatform.dto.validation.OnCreate;
@@ -37,6 +38,16 @@ public class UserController {
             @Validated(OnUpdate.class)
             @RequestBody UserDto userDto) {
         return new ResponseEntity<>(userFacade.updateUser(userDto), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/change-password")
+    @Operation(summary = "Update password")
+    @PreAuthorize("@expression.isAccessUser(#id)")
+    public ResponseEntity<UserDto> changePassword(
+            @Validated(OnUpdate.class)
+            @PathVariable final UUID id,
+            @RequestBody ChangePasswordRequest changePasswordRequest) {
+        return new ResponseEntity<>(userFacade.changePassword(id, changePasswordRequest), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

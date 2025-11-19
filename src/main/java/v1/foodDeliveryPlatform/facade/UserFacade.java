@@ -1,5 +1,6 @@
 package v1.foodDeliveryPlatform.facade;
 
+import v1.foodDeliveryPlatform.dto.auth.ChangePasswordRequest;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
 
 import java.util.UUID;
@@ -12,4 +13,6 @@ public interface UserFacade {
     void delete(UUID id);
 
     UserDto updateRole(UUID id);
+
+    UserDto changePassword(UUID id, ChangePasswordRequest changePasswordRequest);
 }

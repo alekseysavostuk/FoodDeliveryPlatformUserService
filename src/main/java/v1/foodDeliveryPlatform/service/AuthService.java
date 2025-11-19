@@ -10,4 +10,6 @@ public interface AuthService {
     User createUser(User user) throws MessagingException;
 
     JwtResponse refresh(String refreshToken);
+
+    void authenticate(String email, String password);
 }

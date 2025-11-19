@@ -21,6 +21,9 @@ databaseChangeLog:
               - column:
                   name: created_at
                   valueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: email_confirmed
+                  valueComputed: true
 
         - insert:
             tableName: user_role

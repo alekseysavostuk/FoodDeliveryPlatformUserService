@@ -14,4 +14,6 @@ public interface UserService {
     User updateRole(UUID id);
 
     User getByEmail(String email);
+
+    User changePassword(UUID id, String newRawPassword);
 }

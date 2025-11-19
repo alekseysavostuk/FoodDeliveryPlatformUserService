@@ -30,6 +30,13 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: confirmation_code
+                  type: varchar(50)
+              - column:
+                  name: email_confirmed
+                  type: boolean
+                  defaultValue: false
+              - column:
                   name: created_at
                   type: timestamp
               - column:

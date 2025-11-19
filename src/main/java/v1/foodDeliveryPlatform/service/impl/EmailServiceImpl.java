@@ -12,6 +12,7 @@ import org.thymeleaf.context.Context;
 import v1.foodDeliveryPlatform.model.User;
 import v1.foodDeliveryPlatform.model.enums.MailType;
 import v1.foodDeliveryPlatform.service.EmailService;
+import v1.foodDeliveryPlatform.service.UserService;
 
 import java.util.Properties;
 
@@ -22,6 +23,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final TemplateEngine templateEngine;
     private final JavaMailSender mailSender;
+    private final UserService userService;
 
     @Override
     public void sendEmail(User user, MailType type, Properties params) throws MessagingException {
@@ -30,10 +32,9 @@ public class EmailServiceImpl implements EmailService {
         switch (type) {
             case REGISTRATION -> sendRegistrationEmail(user, params);
             case ORDER_RECEIPT -> sendOrderReceiptEmail(user, params);
+            case WELCOME -> sendWelcomeEmail(user, params);
             default -> log.warn("Unknown mail type: {} for user: {}", type, user.getEmail());
         }
-
-        log.debug("Email type {} processing completed for user: {}", type, user.getEmail());
     }
 
     private void sendRegistrationEmail(User user, Properties params) throws MessagingException {
@@ -45,13 +46,61 @@ public class EmailServiceImpl implements EmailService {
         if (!isValidEmail(userEmail)) {
             throw new IllegalArgumentException("Invalid email format: " + userEmail);
         }
+        String confirmationCode = user.getConfirmationCode();
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+        helper.setSubject("Confirm your email");
+        helper.setTo(user.getEmail());
+
+        String emailContent = getRegistrationEmailContent(user, confirmationCode);
+        helper.setText(emailContent, true);
+        mailSender.send(mimeMessage);
+
+        log.info("Registration confirmation email sent to: {}", user.getEmail());
+    }
+
+    private void sendWelcomeEmail(User user, Properties params) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
         helper.setSubject("Welcome to the club, buddy " + user.getName());
         helper.setTo(user.getEmail());
-        String emailContent = getRegistrationEmailContent(user, params);
+        String emailContent = getWelcomeEmailContent(user, params);
         helper.setText(emailContent, true);
         mailSender.send(mimeMessage);
+    }
+
+    private String getRegistrationEmailContent(User user, String confirmationCode) {
+        Context context = new Context();
+        context.setVariable("name", user.getName());
+        context.setVariable("confirmationUrl",
+                "http://localhost:8081/api/v1/auth/confirm-email?code=" + confirmationCode + "&email=" + user.getEmail());
+
+        return templateEngine.process("email-confirmation", context);
+    }
+
+    public void confirmEmail(String email, String confirmationCode) {
+        User user = userService.getByEmail(email);
+
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        if (!confirmationCode.equals(user.getConfirmationCode())) {
+            throw new RuntimeException("Invalid confirmation code");
+        }
+
+        user.setEmailConfirmed(true);
+        user.setConfirmationCode(null);
+        userService.updateUser(user);
+
+        log.info("Email confirmed for user: {}", email);
+
+        try {
+            sendWelcomeEmail(user, new Properties());
+        } catch (MessagingException e) {
+            log.error("Failed to send welcome email to: {}", email, e);
+        }
     }
 
     private void sendOrderReceiptEmail(User user, Properties params) throws MessagingException {
@@ -91,7 +140,7 @@ public class EmailServiceImpl implements EmailService {
         return content;
     }
 
-    private String getRegistrationEmailContent(User user, Properties params) {
+    private String getWelcomeEmailContent(User user, Properties params) {
         log.trace("Generating registration email content for user: {}", user.getEmail());
 
         Context context = new Context();

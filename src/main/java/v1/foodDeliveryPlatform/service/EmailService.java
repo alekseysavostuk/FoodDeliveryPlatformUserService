@@ -8,4 +8,6 @@ import java.util.Properties;
 
 public interface EmailService {
     public void sendEmail(User user, MailType type, Properties params) throws MessagingException;
+
+    void confirmEmail(String email, String confirmationCode);
 }

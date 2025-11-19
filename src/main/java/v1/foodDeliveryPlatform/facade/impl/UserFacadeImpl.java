@@ -2,9 +2,11 @@ package v1.foodDeliveryPlatform.facade.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import v1.foodDeliveryPlatform.dto.auth.ChangePasswordRequest;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
 import v1.foodDeliveryPlatform.facade.UserFacade;
 import v1.foodDeliveryPlatform.mapper.UserMapper;
+import v1.foodDeliveryPlatform.service.AuthService;
 import v1.foodDeliveryPlatform.service.UserService;
 
 import java.util.UUID;
@@ -14,6 +16,7 @@ import java.util.UUID;
 public class UserFacadeImpl implements UserFacade {
 
     private final UserService userService;
+    private final AuthService authService;
     private final UserMapper mapper;
 
     @Override
@@ -34,5 +37,11 @@ public class UserFacadeImpl implements UserFacade {
     @Override
     public UserDto updateRole(UUID id) {
         return mapper.toDto(userService.updateRole(id));
+    }
+
+    @Override
+    public UserDto changePassword(UUID id, ChangePasswordRequest request) {
+        authService.authenticate(request.getEmail(), request.getOldPassword());
+        return mapper.toDto(userService.changePassword(id, request.getNewPassword()));
     }
 }

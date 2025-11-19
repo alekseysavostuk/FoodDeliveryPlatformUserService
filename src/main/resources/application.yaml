@@ -12,7 +12,7 @@ spring:
       key-prefix: "app:"
       use-key-prefix: true
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     consumer:
       group-id: user-service-group
       auto-offset-reset: earliest

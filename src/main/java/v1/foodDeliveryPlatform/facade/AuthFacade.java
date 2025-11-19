@@ -9,7 +9,9 @@ import v1.foodDeliveryPlatform.dto.model.UserDto;
 public interface AuthFacade {
     JwtResponse getToken(JwtRequest jwtRequest);
 
-    UserDto createUser(UserDto userDto) throws MessagingException;
+    void createUser(UserDto userDto) throws MessagingException;
 
     JwtResponse refreshToken(RefreshTokenRequest refreshToken);
+
+    void confirmEmail(String email, String code);
 }

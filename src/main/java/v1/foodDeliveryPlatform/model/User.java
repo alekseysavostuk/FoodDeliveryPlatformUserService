@@ -43,6 +43,12 @@ public class User implements Serializable {
     @Column(name = "created_at")
     private LocalDateTime created;
 
+    @Column(name = "confirmation_code")
+    private String confirmationCode;
+
+    @Column(name = "email_confirmed")
+    private boolean emailConfirmed = false;
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updated;
