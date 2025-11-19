@@ -1,11 +1,11 @@
 package v1.foodDeliveryPlatform.security.expression;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import v1.foodDeliveryPlatform.model.Role;
 import v1.foodDeliveryPlatform.repository.RoleRepository;
 import v1.foodDeliveryPlatform.security.jwt.JwtUser;

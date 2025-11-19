@@ -1,8 +1,11 @@
 package v1.foodDeliveryPlatform.service.impl;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import v1.foodDeliveryPlatform.exception.ResourceNotFoundException;
 import v1.foodDeliveryPlatform.model.Address;
 import v1.foodDeliveryPlatform.repository.AddressRepository;
@@ -20,12 +23,15 @@ public class AddressServiceImpl implements AddressService {
     private final UserService userService;
 
     @Override
+    @Transactional
+    @Cacheable(value = "addresses", key = "#id")
     public Address getById(UUID id) {
         return addressRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Address not found"));
     }
 
     @Override
+    @Transactional
     public Address createAddress(Address address, UUID userId) {
         address.setUser(userService.getById(userId));
         addressRepository.save(address);
@@ -34,11 +40,17 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional
+    @Cacheable(value = "user_addresses", key = "#userId")
     public List<Address> getAllByUserId(UUID userId) {
         return addressRepository.findAllByUserId(userId);
     }
 
     @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "addresses", key = "#address.id"),
+            @CacheEvict(value = "user_addresses", key = "#result.user.id")
+    })
     public Address updateAddress(Address address) {
         Address currentAddress = getById(address.getId());
         currentAddress.setCity(address.getCity());
@@ -52,6 +64,10 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "addresses", key = "#id"),
+            @CacheEvict(value = "user_addresses", allEntries = true)
+    })
     public void delete(UUID id) {
         addressRepository.deleteDirectlyById(id);
     }
