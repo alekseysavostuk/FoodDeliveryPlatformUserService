@@ -36,27 +36,49 @@ public class AuthServiceImpl implements AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-
     @Override
     public JwtResponse loginWithEmailAndPassword(String email, String password) {
-        authenticate(email, password);
-        User user = userService.getByEmail(email);
-        JwtResponse jwtResponse = new JwtResponse();
-        jwtResponse.setId(user.getId());
-        jwtResponse.setEmail(email);
-        jwtResponse.setAccessToken(
-                jwtTokenProvider.createAccessToken(email, user.getRoles(), user.getId()));
-        jwtResponse.setRefreshToken(
-                jwtTokenProvider.createRefreshToken(user.getId(), email));
-        return jwtResponse;
+        log.info("Attempting login for email: {}", email);
+
+        try {
+            authenticate(email, password);
+            User user = userService.getByEmail(email);
+
+            log.debug("User authenticated successfully: {} ({})", email, user.getId());
+
+            JwtResponse jwtResponse = new JwtResponse();
+            jwtResponse.setId(user.getId());
+            jwtResponse.setEmail(email);
+            jwtResponse.setAccessToken(
+                    jwtTokenProvider.createAccessToken(email, user.getRoles(), user.getId()));
+            jwtResponse.setRefreshToken(
+                    jwtTokenProvider.createRefreshToken(user.getId(), email));
+
+            log.info("Login successful for user: {} ({})", email, user.getId());
+            return jwtResponse;
+
+        } catch (DisabledException e) {
+            log.warn("Login failed - user disabled: {}", email);
+            throw e;
+        } catch (BadCredentialsException e) {
+            log.warn("Login failed - invalid credentials for: {}", email);
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error during login for: {}", email, e);
+            throw e;
+        }
     }
 
     private void authenticate(String email, String password) {
+        log.debug("Authenticating user: {}", email);
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+            log.debug("Authentication successful for: {}", email);
         } catch (DisabledException e) {
+            log.error("Authentication failed - user disabled: {}", email);
             throw new DisabledException("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
+            log.error("Authentication failed - bad credentials for: {}", email);
             throw new BadCredentialsException("INVALID_CREDENTIALS", e);
         }
     }
@@ -64,22 +86,43 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public User createUser(User user) throws MessagingException {
+        log.info("Creating new user with email: {}", user.getEmail());
+
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            log.warn("User creation failed - email already taken: {}", user.getEmail());
             throw new IllegalStateException("User already taken");
         }
+
         user.setRoles(roleRepository.findByName("ROLE_USER"));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreated(LocalDateTime.now());
-        userRepository.save(user);
 
-        Properties params = new Properties();
-        emailService.sendEmail(user, MailType.REGISTRATION, params);
+        User savedUser = userRepository.save(user);
+        log.info("User created successfully: {} ({})", savedUser.getEmail(), savedUser.getId());
 
-        return user;
+        try {
+            Properties params = new Properties();
+            emailService.sendEmail(savedUser, MailType.REGISTRATION, params);
+            log.debug("Registration email sent to: {}", savedUser.getEmail());
+        } catch (MessagingException e) {
+            log.error("Failed to send registration email to: {}", savedUser.getEmail(), e);
+            // Не бросаем исключение дальше - пользователь уже создан
+        }
+
+        return savedUser;
     }
 
     @Override
     public JwtResponse refresh(@RequestBody String refreshToken) {
-        return jwtTokenProvider.refreshTokens(refreshToken);
+        log.debug("Refreshing tokens with refresh token");
+
+        try {
+            JwtResponse jwtResponse = jwtTokenProvider.refreshTokens(refreshToken);
+            log.debug("Tokens refreshed successfully for user: {}", jwtResponse.getEmail());
+            return jwtResponse;
+        } catch (Exception e) {
+            log.error("Token refresh failed", e);
+            throw e;
+        }
     }
 }

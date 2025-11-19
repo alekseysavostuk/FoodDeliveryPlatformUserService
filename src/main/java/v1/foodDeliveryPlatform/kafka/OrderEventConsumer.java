@@ -55,9 +55,9 @@ public class OrderEventConsumer {
             @Header(KafkaHeaders.OFFSET) long offset,
             Acknowledgment ack) throws MessagingException, JsonProcessingException {
 
-        log.info("=== KAFKA CONSUMER STARTED ===");
-        log.info("Received raw message: {}", message);
-        log.info("Key: {}, Partition: {}, Offset: {}", key, partition, offset);
+        log.info("Received Kafka message - Topic: order-completed, Key: {}, Partition: {}, Offset: {}",
+                key, partition, offset);
+        log.debug("Raw message content: {}", message);
 
         Counter processedCounter = meterRegistry.counter("kafka.consumer.processed", "topic", "order-completed");
         Counter errorCounter = meterRegistry.counter("kafka.consumer.errors", "topic", "order-completed");
@@ -66,12 +66,14 @@ public class OrderEventConsumer {
         Timer.Sample sample = Timer.start(meterRegistry);
         String eventId = "unknown";
 
+        log.debug("Parsing Kafka message to Map");
+
         try {
             Map<String, Object> event = objectMapper.readValue(message, new TypeReference<Map<String, Object>>() {
             });
             eventId = (String) event.get("eventId");
 
-            log.info("Parsed event - EventId: {}, OrderId: {}, UserId: {}",
+            log.info("Processing order event - EventId: {}, OrderId: {}, UserId: {}",
                     eventId, event.get("orderId"), event.get("userId"));
 
             String orderId = (String) event.get("orderId");
@@ -103,11 +105,9 @@ public class OrderEventConsumer {
             processedCounter.increment();
             ack.acknowledge();
 
-            log.info("=== KAFKA CONSUMER COMPLETED SUCCESSFULLY ===");
-
+            log.info("Order event processed successfully - EventId: {}, OrderId: {}", eventId, orderId);
         } catch (Exception e) {
-            log.error("=== KAFKA CONSUMER FAILED ===");
-            log.error("Failed to process order event (eventId: {}): {}", eventId, message, e);
+            log.error("JSON parsing failed for event (EventId: {}): {}", eventId, e.getMessage());
             errorCounter.increment();
             meterRegistry.counter("kafka.consumer.failures",
                             "topic", "order-completed",
@@ -120,32 +120,54 @@ public class OrderEventConsumer {
     }
 
     private BigDecimal convertToBigDecimal(Object value) {
+        log.trace("Converting value to BigDecimal: {}", value);
         return switch (value) {
-            case null -> BigDecimal.ZERO;
-            case BigDecimal bigDecimal -> bigDecimal;
-            case Number number -> BigDecimal.valueOf(number.doubleValue());
-            default -> new BigDecimal(value.toString());
+            case null -> {
+                log.trace("Null value converted to BigDecimal.ZERO");
+                yield BigDecimal.ZERO;
+            }
+            case BigDecimal bigDecimal -> {
+                log.trace("Value is already BigDecimal: {}", bigDecimal);
+                yield bigDecimal;
+            }
+            case Number number -> {
+                BigDecimal result = BigDecimal.valueOf(number.doubleValue());
+                log.trace("Converted Number {} to BigDecimal: {}", number, result);
+                yield result;
+            }
+            default -> {
+                BigDecimal result = new BigDecimal(value.toString());
+                log.trace("Converted String {} to BigDecimal: {}", value, result);
+                yield result;
+            }
         };
     }
 
     private String formatItems(List<Map<String, Object>> items) {
+        log.trace("Formatting {} order items", items != null ? items.size() : 0);
         if (items == null || items.isEmpty()) {
             return "No items";
         }
 
-        return items.stream()
+        String formattedItems = items.stream()
                 .map(item -> {
                     String dishName = (String) item.get("dishName");
                     if (dishName == null) {
                         dishName = "Unknown Dish";
+                        log.warn("Missing dish name in order item");
                     }
 
                     Integer quantity = (item.get("quantity") instanceof Number) ?
                             ((Number) item.get("quantity")).intValue() : 1;
                     BigDecimal price = convertToBigDecimal(item.get("price"));
 
-                    return String.format("%s × %d - %s ₽", dishName, quantity, price);
+                    String itemString = String.format("%s × %d - %s ₽", dishName, quantity, price);
+                    log.trace("Formatted item: {}", itemString);
+                    return itemString;
                 })
                 .collect(Collectors.joining("\n"));
+
+        log.debug("Successfully formatted {} items", items.size());
+        return formattedItems;
     }
 }
