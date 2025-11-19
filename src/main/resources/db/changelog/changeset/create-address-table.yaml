@@ -45,3 +45,9 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
+        - createIndex:
+            indexName: idx_address_user_id
+            tableName: address
+            columns:
+              - column:
+                  name: user_id
