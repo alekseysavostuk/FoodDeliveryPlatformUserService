@@ -19,19 +19,19 @@ public class UserCleanupServiceImpl implements UserCleanupService {
     private final UserRepository userRepository;
 
     public void cleanupUnconfirmedUsers() {
-        LocalDateTime oneHourAgo = LocalDateTime.now().minusMinutes(5);
+        LocalDateTime temp = LocalDateTime.now().minusMinutes(5);
 
         List<User> unconfirmedUsers = userRepository
-                .findByEmailConfirmedFalseAndCreatedAtBefore(oneHourAgo);
+                .findByEmailConfirmedFalseAndCreatedAtBefore(temp);
 
         if (!unconfirmedUsers.isEmpty()) {
             userRepository.deleteAll(unconfirmedUsers);
-            log.info("Auto-cleaned {} unconfirmed users older than 1 hour",
+            log.info("Auto-cleaned {} unconfirmed users older than 5 min",
                     unconfirmedUsers.size());
         }
     }
 
-    @Scheduled(cron = "0 */30 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void autoCleanup() {
         log.debug("Starting automatic cleanup of unconfirmed users");
         cleanupUnconfirmedUsers();
