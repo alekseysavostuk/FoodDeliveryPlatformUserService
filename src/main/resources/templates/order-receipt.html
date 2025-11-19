@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Receipt</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .header { text-align: center; color: #4CAF50; margin-bottom: 30px; }
+        .order-info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .items { margin: 20px 0; }
+        .item { display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; border-bottom: 1px solid #eee; }
+        .total { border-top: 2px solid #4CAF50; padding-top: 10px; margin-top: 20px; font-weight: bold; }
+        .footer { text-align: center; margin-top: 30px; color: #666; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Order Completed! 🎉</h1>
+    </div>
+
+    <p>Dear <strong th:text="${name}">User</strong>,</p>
+    <p>Thank you for your order! Here is your receipt:</p>
+
+    <div class="order-info">
+        <p><strong>Order ID:</strong> <span th:text="${orderId}">#123</span></p>
+        <p><strong>Restaurant:</strong> <span th:text="${restaurantName}">Restaurant Name</span></p>
+    </div>
+
+    <div class="items">
+        <h3>Order Items:</h3>
+        <div th:each="item : ${#strings.arraySplit(items, ',')}" class="item">
+            <span th:text="${item}">Item × 2 - 500 ₽</span>
+        </div>
+    </div>
+
+    <div class="total">
+        <p>Total Amount: <strong th:text="${totalAmount + ' ₽'}">1000 ₽</strong></p>
+    </div>
+
+    <p>We hope you enjoy your meal! 🍕</p>
+
+    <div class="footer">
+        <p>Best regards,<br>Food Delivery Team</p>
+    </div>
+</div>
+</body>
+</html>

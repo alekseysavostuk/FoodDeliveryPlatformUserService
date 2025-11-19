@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .header { text-align: center; color: #4CAF50; margin-bottom: 30px; }
+        .footer { text-align: center; margin-top: 30px; color: #666; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Welcome! 👋</h1>
+    </div>
+
+    <p>Dear <strong th:text="${name}">User</strong>,</p>
+
+    <p>Welcome to our food delivery service! We're excited to have you on board.</p>
+
+    <p>Now you can:</p>
+    <ul>
+        <li>Order from your favorite restaurants</li>
+        <li>Track your orders in real-time</li>
+        <li>Get exclusive offers and discounts</li>
+    </ul>
+
+    <p>Start exploring and enjoy your first order! 🚀</p>
+
+    <div class="footer">
+        <p>Best regards,<br>Food Delivery Team</p>
+    </div>
+</div>
+</body>
+</html>

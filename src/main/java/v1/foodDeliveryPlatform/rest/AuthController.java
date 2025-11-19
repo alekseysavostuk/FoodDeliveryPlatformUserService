@@ -2,6 +2,7 @@ package v1.foodDeliveryPlatform.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class AuthController {
     @Operation(summary = "User registration")
     public ResponseEntity<UserDto> createUser(
             @Validated(OnCreate.class)
-            @RequestBody UserDto userDto) {
+            @RequestBody UserDto userDto) throws MessagingException {
         return new ResponseEntity<>(authFacade.createUser(userDto), HttpStatus.CREATED);
     }
 

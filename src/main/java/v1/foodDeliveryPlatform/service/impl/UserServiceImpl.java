@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import v1.foodDeliveryPlatform.exception.ModelExistsException;
+import v1.foodDeliveryPlatform.exception.ResourceNotFoundException;
 import v1.foodDeliveryPlatform.model.User;
 import v1.foodDeliveryPlatform.repository.RoleRepository;
 import v1.foodDeliveryPlatform.repository.UserRepository;
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getById(UUID id) {
         return userRepository.findById(id).orElseThrow(() ->
-                new ModelExistsException("User not found"));
+                new ResourceNotFoundException("User not found"));
     }
 
     @Override
@@ -61,6 +61,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User getByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() ->
-                new ModelExistsException("User not found"));
+                new ResourceNotFoundException("User not found"));
     }
 }

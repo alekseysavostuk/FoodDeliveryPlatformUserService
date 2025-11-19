@@ -1,7 +1,9 @@
 package v1.foodDeliveryPlatform.service.impl;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -10,17 +12,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import v1.foodDeliveryPlatform.dto.auth.JwtResponse;
-import v1.foodDeliveryPlatform.exception.ModelExistsException;
 import v1.foodDeliveryPlatform.model.User;
+import v1.foodDeliveryPlatform.model.enums.MailType;
 import v1.foodDeliveryPlatform.repository.RoleRepository;
 import v1.foodDeliveryPlatform.repository.UserRepository;
 import v1.foodDeliveryPlatform.security.jwt.JwtTokenProvider;
 import v1.foodDeliveryPlatform.service.AuthService;
+import v1.foodDeliveryPlatform.service.EmailService;
 import v1.foodDeliveryPlatform.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.Properties;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
@@ -29,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
 
     @Override
@@ -57,14 +63,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public User createUser(User user) {
+    public User createUser(User user) throws MessagingException {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new ModelExistsException("User already taken");
+            throw new IllegalStateException("User already taken");
         }
         user.setRoles(roleRepository.findByName("ROLE_USER"));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreated(LocalDateTime.now());
         userRepository.save(user);
+
+        Properties params = new Properties();
+        emailService.sendEmail(user, MailType.REGISTRATION, params);
+
         return user;
     }
 

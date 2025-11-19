@@ -1,5 +1,6 @@
 package v1.foodDeliveryPlatform.facade.impl;
 
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import v1.foodDeliveryPlatform.dto.auth.JwtRequest;
@@ -23,7 +24,7 @@ public class AuthFacadeImpl implements AuthFacade {
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) {
+    public UserDto createUser(UserDto userDto) throws MessagingException {
         return mapper.toDto(authService.createUser(mapper.toEntity(userDto)));
     }
 

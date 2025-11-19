@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import v1.foodDeliveryPlatform.dto.auth.JwtResponse;
-import v1.foodDeliveryPlatform.exception.TokenException;
+import v1.foodDeliveryPlatform.exception.AccessDeniedException;
 import v1.foodDeliveryPlatform.model.Role;
 import v1.foodDeliveryPlatform.model.User;
 import v1.foodDeliveryPlatform.security.props.JwtProps;
@@ -73,7 +73,7 @@ public class JwtTokenProvider {
     public JwtResponse refreshTokens(String refreshToken) {
         JwtResponse jwtResponse = new JwtResponse();
         if (!isValid(refreshToken)) {
-            throw new TokenException("Invalid token");
+            throw new AccessDeniedException();
         }
         UUID id = UUID.fromString(getId(refreshToken));
         User user = userService.getById(id);

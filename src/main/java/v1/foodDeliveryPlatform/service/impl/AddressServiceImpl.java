@@ -3,7 +3,7 @@ package v1.foodDeliveryPlatform.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import v1.foodDeliveryPlatform.exception.ModelExistsException;
+import v1.foodDeliveryPlatform.exception.ResourceNotFoundException;
 import v1.foodDeliveryPlatform.model.Address;
 import v1.foodDeliveryPlatform.repository.AddressRepository;
 import v1.foodDeliveryPlatform.service.AddressService;
@@ -22,7 +22,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public Address getById(UUID id) {
         return addressRepository.findById(id).orElseThrow(() ->
-                new ModelExistsException("Address not found"));
+                new ResourceNotFoundException("Address not found"));
     }
 
     @Override
