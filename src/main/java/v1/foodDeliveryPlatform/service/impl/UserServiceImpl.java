@@ -58,13 +58,6 @@ public class UserServiceImpl implements UserService {
         currentUser.setEmailConfirmed(user.isEmailConfirmed());
         currentUser.setUpdated(LocalDateTime.now());
 
-        log.info("=== UPDATING USER ===");
-        log.info("Email: {}", user.getEmail());
-        log.info("Email confirmed: {}", user.isEmailConfirmed());
-        log.info("Password hash: {}", user.getPassword());
-        log.info("Roles: {}", user.getRoles());
-        log.info("=====================");
-
         User updatedUser = userRepository.save(currentUser);
         log.info("User successfully updated: {} ({})", updatedUser.getEmail(), updatedUser.getId());
         return updatedUser;

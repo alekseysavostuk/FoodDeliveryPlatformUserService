@@ -93,5 +93,4 @@ public class UserController {
             @PathVariable final UUID id) {
         return new ResponseEntity<>(addressFacade.getAllByUserId(id), HttpStatus.OK);
     }
-
 }

@@ -105,5 +105,4 @@ public class AdviceController {
         e.printStackTrace();
         return new ExceptionBody("Internal error");
     }
-
 }

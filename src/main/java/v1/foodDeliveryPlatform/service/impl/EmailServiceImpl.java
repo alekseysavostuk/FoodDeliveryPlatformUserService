@@ -27,6 +27,11 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendEmail(User user, MailType type, Properties params) throws MessagingException {
+        if (type == null) {
+            log.warn("Attempt to send email with null type for user: {}", user.getEmail());
+            return;
+        }
+
         log.info("Preparing to send {} email to user: {} ({})", type, user.getEmail(), user.getId());
 
         switch (type) {
@@ -99,7 +104,11 @@ public class EmailServiceImpl implements EmailService {
         try {
             sendWelcomeEmail(user, new Properties());
         } catch (MessagingException e) {
-            log.error("Failed to send welcome email to: {}", email, e);
+            log.error("Email sending failed for user: {}", email, e);
+        } catch (RuntimeException e) {
+            log.error("Unexpected error while sending email to: {}", email, e);
+        } catch (Exception e) {
+            log.error("Critical error sending email to: {}", email, e);
         }
     }
 
