@@ -53,7 +53,6 @@ public class UserServiceImpl implements UserService {
         boolean emailChanged = !currentUser.getEmail().equals(user.getEmail());
         log.debug("User update - email changed: {}, name: {}", emailChanged, user.getName());
 
-        currentUser.setEmail(user.getEmail());
         currentUser.setName(user.getName());
         currentUser.setEmailConfirmed(user.isEmailConfirmed());
         currentUser.setUpdated(LocalDateTime.now());

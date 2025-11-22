@@ -55,7 +55,6 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional
-    @Cacheable(value = "user_addresses", key = "#userId")
     public List<Address> getAllByUserId(UUID userId) {
         log.debug("Fetching all addresses for user ID: {}", userId);
 

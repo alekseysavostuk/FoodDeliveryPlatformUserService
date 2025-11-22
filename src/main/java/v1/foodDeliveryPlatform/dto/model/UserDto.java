@@ -33,11 +33,11 @@ public class UserDto {
     private UUID id;
 
     @NotBlank(message = "Email must be not blank",
-            groups = {OnCreate.class, OnUpdate.class})
+            groups = OnCreate.class)
     @Email(message = "Email should be in valid format",
-            groups = {OnCreate.class, OnUpdate.class})
+            groups = OnCreate.class)
     @Length(max = 255, message = "Email must be smaller 255 characters",
-            groups = {OnCreate.class, OnUpdate.class})
+            groups = OnCreate.class)
     @Schema(
             description = "User's email address",
             example = "user@example.com",
