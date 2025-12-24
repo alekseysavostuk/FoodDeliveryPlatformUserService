@@ -10,6 +10,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import v1.foodDeliveryPlatform.config.ControllerTestSecurityConfig;
 import v1.foodDeliveryPlatform.dto.auth.ChangePasswordRequest;
+import v1.foodDeliveryPlatform.dto.auth.PasswordConfirm;
 import v1.foodDeliveryPlatform.dto.model.AddressDto;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
 import v1.foodDeliveryPlatform.facade.AddressFacade;
@@ -62,6 +63,12 @@ class UserControllerTest {
     private final String changePasswordJson = """
         {
             "newPassword": "newPassword123"
+        }
+        """;
+
+    private final String passwordJson = """
+        {
+            "password": "password123"
         }
         """;
 
@@ -144,14 +151,16 @@ class UserControllerTest {
     @Test
     @WithMockUser
     void deleteById_Success() throws Exception {
-        doNothing().when(userFacade).delete(userId);
+        doNothing().when(userFacade).delete(eq(userId), any(PasswordConfirm.class));
         when(expression.isAccessUser(any(UUID.class))).thenReturn(true);
 
         mockMvc.perform(delete("/api/v1/users/{id}", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(passwordJson)
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
-        verify(userFacade).delete(userId);
+        verify(userFacade).delete(eq(userId), any(PasswordConfirm.class));
     }
 
     @Test

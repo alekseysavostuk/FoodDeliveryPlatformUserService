@@ -40,6 +40,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public Address createAddress(Address address, UUID userId) {
         log.info("Creating new address for user ID: {}", userId);
 
@@ -68,7 +69,8 @@ public class AddressServiceImpl implements AddressService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "addresses", key = "#address.id"),
-            @CacheEvict(value = "user_addresses", key = "#result.user.id")
+            @CacheEvict(value = "user_addresses", key = "#result.user.id"),
+            @CacheEvict(value = "users", allEntries = true)
     })
     public Address updateAddress(Address address) {
         log.info("Updating address with ID: {}", address.getId());
@@ -95,7 +97,8 @@ public class AddressServiceImpl implements AddressService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "addresses", key = "#id"),
-            @CacheEvict(value = "user_addresses", allEntries = true)
+            @CacheEvict(value = "user_addresses", allEntries = true),
+            @CacheEvict(value = "users", allEntries = true)
     })
     public void delete(UUID id) {
         log.info("Deleting address with ID: {}", id);

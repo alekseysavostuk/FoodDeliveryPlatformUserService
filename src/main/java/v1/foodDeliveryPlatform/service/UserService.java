@@ -2,6 +2,7 @@ package v1.foodDeliveryPlatform.service;
 
 import v1.foodDeliveryPlatform.model.User;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
@@ -16,4 +17,6 @@ public interface UserService {
     User getByEmail(String email);
 
     User changePassword(UUID id, String newRawPassword);
+
+    List<User> getAllUsers();
 }

@@ -8,6 +8,8 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMethod;
 import v1.foodDeliveryPlatform.exception.ResourceNotFoundException;
 import v1.foodDeliveryPlatform.model.User;
 import v1.foodDeliveryPlatform.repository.RoleRepository;
@@ -15,6 +17,7 @@ import v1.foodDeliveryPlatform.repository.UserRepository;
 import v1.foodDeliveryPlatform.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -29,6 +32,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     @Cacheable(value = "users", key = "#id")
+    @CrossOrigin(origins = "http://localhost:5173",
+            methods = {RequestMethod.GET, RequestMethod.POST,
+                    RequestMethod.PUT, RequestMethod.DELETE,
+                    RequestMethod.OPTIONS, RequestMethod.PATCH},
+            allowedHeaders = "*",
+            allowCredentials = "true")
     public User getById(UUID id) {
         log.debug("Fetching user from database by ID: {}", id);
         User user = userRepository.findById(id).orElseThrow(() -> {
@@ -54,7 +63,6 @@ public class UserServiceImpl implements UserService {
         log.debug("User update - email changed: {}, name: {}", emailChanged, user.getName());
 
         currentUser.setName(user.getName());
-        currentUser.setEmailConfirmed(user.isEmailConfirmed());
         currentUser.setUpdated(LocalDateTime.now());
 
         User updatedUser = userRepository.save(currentUser);
@@ -125,5 +133,14 @@ public class UserServiceImpl implements UserService {
         User updatedUser = userRepository.save(user);
         log.info("Password changed successfully for user: {}", updatedUser.getEmail());
         return updatedUser;
+    }
+
+    @Override
+    @Transactional
+    public List<User> getAllUsers() {
+        log.debug("Fetching all users");
+        List<User> users = userRepository.findAll();
+        log.debug("Found {} users", users.size());
+        return users;
     }
 }
