@@ -34,7 +34,7 @@ public class AddressDto {
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "Street must be smaller 255 characters",
             groups = {OnCreate.class, OnUpdate.class})
-    @Pattern(regexp = "^[A-Za-z\\s]+$",
+    @Pattern(regexp = "^[A-Za-zА-Яа-я\\s\\d]+$",
             message = "Must contain only letters and spaces",
             groups = {OnCreate.class, OnUpdate.class})
     @Schema(
@@ -48,7 +48,7 @@ public class AddressDto {
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "City must be smaller 255 characters",
             groups = {OnCreate.class, OnUpdate.class})
-    @Pattern(regexp = "^[A-Za-z\\s]+$",
+    @Pattern(regexp = "^[A-Za-zА-Яа-я\\s]+$",
             message = "Must contain only letters and spaces",
             groups = {OnCreate.class, OnUpdate.class})
     @Schema(
@@ -73,7 +73,7 @@ public class AddressDto {
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "State must be smaller 255 characters",
             groups = {OnCreate.class, OnUpdate.class})
-    @Pattern(regexp = "^[A-Za-z\\s]+$",
+    @Pattern(regexp = "^[A-Za-zА-Яа-я\\s]+$",
             message = "Must contain only letters and spaces",
             groups = {OnCreate.class, OnUpdate.class})
     @Schema(
@@ -87,7 +87,7 @@ public class AddressDto {
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "Country must be smaller 255 characters",
             groups = {OnCreate.class, OnUpdate.class})
-    @Pattern(regexp = "^[A-Za-z\\s]+$",
+    @Pattern(regexp = "^[A-Za-zА-Яа-я\\s]+$",
             message = "Must contain only letters and spaces",
             groups = {OnCreate.class, OnUpdate.class})
     @Schema(

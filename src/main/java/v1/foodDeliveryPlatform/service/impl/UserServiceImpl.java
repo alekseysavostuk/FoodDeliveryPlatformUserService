@@ -63,6 +63,7 @@ public class UserServiceImpl implements UserService {
         log.debug("User update - email changed: {}, name: {}", emailChanged, user.getName());
 
         currentUser.setName(user.getName());
+        currentUser.setPhoneNumber(user.getPhoneNumber());
         currentUser.setUpdated(LocalDateTime.now());
 
         User updatedUser = userRepository.save(currentUser);

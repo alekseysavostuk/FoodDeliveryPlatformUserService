@@ -61,7 +61,7 @@ public class UserDto {
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "Email must be smaller 255 characters",
             groups = {OnCreate.class, OnUpdate.class})
-    @Pattern(regexp = "^[A-Za-z\\s]+$",
+    @Pattern(regexp = "^[A-Za-zА-Яа-я\\s]+$",
             message = "Must contain only letters and spaces",
             groups = {OnCreate.class, OnUpdate.class})
     @Schema(
@@ -70,6 +70,22 @@ public class UserDto {
             maxLength = 255
     )
     private String name;
+
+    @NotBlank(message = "Phone number must be not blank",
+            groups = {OnUpdate.class})
+    @Pattern(regexp = "^375(29|25|33|44)\\d{7}$",
+            message = "Phone number must be in format: 375XXXXXXXXX (12 digits, codes: 29,25,33,44)",
+            groups = {OnCreate.class, OnUpdate.class})
+    @Length(min = 12, max = 12, message = "Phone number must be exactly 12 digits",
+            groups = {OnCreate.class, OnUpdate.class})
+    @Schema(
+            description = "Phone number in format 375XXXXXXXXX (12 digits)",
+            example = "375291234567",
+            pattern = "^375(29|25|33|44)\\d{7}$",
+            minLength = 12,
+            maxLength = 12
+    )
+    private String phoneNumber;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(

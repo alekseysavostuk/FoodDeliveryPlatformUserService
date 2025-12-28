@@ -37,6 +37,12 @@ databaseChangeLog:
                   type: boolean
                   defaultValue: false
               - column:
+                  name: phone_number
+                  type: varchar(12)
+                  constraints:
+                    nullable: true
+                    unique: true
+              - column:
                   name: created_at
                   type: timestamp
               - column:

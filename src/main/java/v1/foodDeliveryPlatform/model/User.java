@@ -2,6 +2,7 @@ package v1.foodDeliveryPlatform.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,6 +46,9 @@ public class User implements Serializable {
 
     @Column(name = "confirmation_code")
     private String confirmationCode;
+
+    @Column(name = "phone_number", unique = true, length = 12)
+    private String phoneNumber;
 
     @Column(name = "email_confirmed")
     private boolean emailConfirmed = false;
