@@ -107,7 +107,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @Cacheable(value = "users_by_email", key = "#email")
     public User getByEmail(String email) {
         log.debug("Fetching user from database by email: {}", email);
         User user = userRepository.findByEmail(email).orElseThrow(() -> {

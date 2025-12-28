@@ -11,6 +11,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import v1.foodDeliveryPlatform.model.User;
 import v1.foodDeliveryPlatform.model.enums.MailType;
+import v1.foodDeliveryPlatform.repository.UserRepository;
 import v1.foodDeliveryPlatform.service.EmailService;
 import v1.foodDeliveryPlatform.service.UserService;
 
@@ -24,6 +25,7 @@ public class EmailServiceImpl implements EmailService {
     private final TemplateEngine templateEngine;
     private final JavaMailSender mailSender;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @Override
     public void sendEmail(User user, MailType type, Properties params) throws MessagingException {
@@ -97,7 +99,7 @@ public class EmailServiceImpl implements EmailService {
 
         user.setEmailConfirmed(true);
         user.setConfirmationCode(null);
-        userService.updateUser(user);
+        userRepository.save(user);
 
         log.info("Email confirmed for user: {}", email);
 

@@ -71,6 +71,13 @@ public class UserDto {
     )
     private String name;
 
+    @Schema(
+            description = "Email confirmation status",
+            example = "true",
+            defaultValue = "false"
+    )
+    private Boolean emailConfirmed;
+
     @NotBlank(message = "Phone number must be not blank",
             groups = {OnUpdate.class})
     @Pattern(regexp = "^375(29|25|33|44)\\d{7}$",
