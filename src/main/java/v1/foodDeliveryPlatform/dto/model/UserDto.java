@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -59,6 +60,9 @@ public class UserDto {
     @NotBlank(message = "Name must be not blank",
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "Email must be smaller 255 characters",
+            groups = {OnCreate.class, OnUpdate.class})
+    @Pattern(regexp = "^[A-Za-z\\s]+$",
+            message = "Must contain only letters and spaces",
             groups = {OnCreate.class, OnUpdate.class})
     @Schema(
             description = "User's full name",

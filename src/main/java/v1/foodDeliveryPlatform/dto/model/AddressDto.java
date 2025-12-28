@@ -3,6 +3,7 @@ package v1.foodDeliveryPlatform.dto.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +34,9 @@ public class AddressDto {
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "Street must be smaller 255 characters",
             groups = {OnCreate.class, OnUpdate.class})
+    @Pattern(regexp = "^[A-Za-z\\s]+$",
+            message = "Must contain only letters and spaces",
+            groups = {OnCreate.class, OnUpdate.class})
     @Schema(
             description = "Street address",
             example = "123 Main Street",
@@ -43,6 +47,9 @@ public class AddressDto {
     @NotBlank(message = "City must be not blank",
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "City must be smaller 255 characters",
+            groups = {OnCreate.class, OnUpdate.class})
+    @Pattern(regexp = "^[A-Za-z\\s]+$",
+            message = "Must contain only letters and spaces",
             groups = {OnCreate.class, OnUpdate.class})
     @Schema(
             description = "City name",
@@ -66,6 +73,9 @@ public class AddressDto {
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "State must be smaller 255 characters",
             groups = {OnCreate.class, OnUpdate.class})
+    @Pattern(regexp = "^[A-Za-z\\s]+$",
+            message = "Must contain only letters and spaces",
+            groups = {OnCreate.class, OnUpdate.class})
     @Schema(
             description = "State or province",
             example = "NY",
@@ -76,6 +86,9 @@ public class AddressDto {
     @NotBlank(message = "Country must be not blank",
             groups = {OnCreate.class, OnUpdate.class})
     @Length(max = 255, message = "Country must be smaller 255 characters",
+            groups = {OnCreate.class, OnUpdate.class})
+    @Pattern(regexp = "^[A-Za-z\\s]+$",
+            message = "Must contain only letters and spaces",
             groups = {OnCreate.class, OnUpdate.class})
     @Schema(
             description = "Country name",

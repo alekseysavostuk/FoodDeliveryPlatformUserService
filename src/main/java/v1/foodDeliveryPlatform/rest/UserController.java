@@ -97,9 +97,8 @@ public class UserController {
     @Operation(summary = "Add address to user")
     @PreAuthorize("@expression.isAccessUser(#id)")
     public ResponseEntity<AddressDto> createAddress(
-            @Validated(OnCreate.class)
             @PathVariable final UUID id,
-            @RequestBody AddressDto addressDto) {
+            @Validated(OnCreate.class) @RequestBody AddressDto addressDto) {
         return new ResponseEntity<>(addressFacade.createAddress(addressDto, id), HttpStatus.CREATED);
     }
 
