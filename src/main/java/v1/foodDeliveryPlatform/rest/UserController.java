@@ -2,6 +2,7 @@ package v1.foodDeliveryPlatform.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import v1.foodDeliveryPlatform.facade.AddressFacade;
 import v1.foodDeliveryPlatform.facade.UserFacade;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -47,14 +49,25 @@ public class UserController {
         return new ResponseEntity<>(userFacade.updateUser(userDto), HttpStatus.OK);
     }
 
+//    @PatchMapping("/{id}/change-password")
+//    @Operation(summary = "Update password")
+//    @PreAuthorize("@expression.isAccessUser(#id)")
+//    public ResponseEntity<UserDto> changePassword(
+//            @Validated(OnUpdate.class)
+//            @PathVariable final UUID id,
+//            @RequestBody ChangePasswordRequest changePasswordRequest) {
+//        return new ResponseEntity<>(userFacade.changePassword(id, changePasswordRequest), HttpStatus.OK);
+//    }
+
     @PatchMapping("/{id}/change-password")
     @Operation(summary = "Update password")
     @PreAuthorize("@expression.isAccessUser(#id)")
-    public ResponseEntity<UserDto> changePassword(
+    public ResponseEntity<String> changePassword(
             @Validated(OnUpdate.class)
             @PathVariable final UUID id,
-            @RequestBody ChangePasswordRequest changePasswordRequest) {
-        return new ResponseEntity<>(userFacade.changePassword(id, changePasswordRequest), HttpStatus.OK);
+            @RequestBody ChangePasswordRequest changePasswordRequest) throws MessagingException {
+        userFacade.changePassword(id, changePasswordRequest);
+        return new ResponseEntity<>( "Change password email sent", HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -82,6 +95,26 @@ public class UserController {
             @PathVariable final UUID id) {
         userFacade.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/password-change")
+    @PreAuthorize("permitAll()")
+    @Operation(summary = "Password change")
+    public ResponseEntity<Map<String, String>> confirmEmail(
+            @RequestParam String email,
+            @RequestParam String code) {
+        try {
+            userFacade.confirmPasswordChange(email, code);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Password change confirmed successfully"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "Confirmation failed: " + e.getMessage()
+            ));
+        }
     }
 
     @PatchMapping("/{id}")

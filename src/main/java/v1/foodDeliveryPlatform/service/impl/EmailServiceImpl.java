@@ -4,8 +4,11 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -26,6 +29,8 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final CacheManager cacheManager;
 
     @Override
     public void sendEmail(User user, MailType type, Properties params) throws MessagingException {
@@ -38,6 +43,7 @@ public class EmailServiceImpl implements EmailService {
 
         switch (type) {
             case REGISTRATION -> sendRegistrationEmail(user, params);
+            case CHANGE_PASSWORD -> sendPasswordEmail(user, params);
             case ORDER_RECEIPT -> sendOrderReceiptEmail(user, params);
             case WELCOME -> sendWelcomeEmail(user, params);
             default -> log.warn("Unknown mail type: {} for user: {}", type, user.getEmail());
@@ -67,6 +73,29 @@ public class EmailServiceImpl implements EmailService {
         log.info("Registration confirmation email sent to: {}", user.getEmail());
     }
 
+    private void sendPasswordEmail(User user, Properties params) throws MessagingException {
+        String userEmail = user.getEmail();
+        if (userEmail == null || userEmail.trim().isEmpty()) {
+            throw new IllegalArgumentException("User email is null or empty");
+        }
+
+        if (!isValidEmail(userEmail)) {
+            throw new IllegalArgumentException("Invalid email format: " + userEmail);
+        }
+        String confirmationCode = user.getConfirmationCode();
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+        helper.setSubject("Confirm your change password");
+        helper.setTo(user.getEmail());
+
+        String emailContent = getChangePasswordEmailContent(user, confirmationCode);
+        helper.setText(emailContent, true);
+        mailSender.send(mimeMessage);
+
+        log.info("Change password confirmation email sent to: {}", user.getEmail());
+    }
+
     private void sendWelcomeEmail(User user, Properties params) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
@@ -84,6 +113,15 @@ public class EmailServiceImpl implements EmailService {
                 "http://localhost:8081/api/v1/auth/confirm-email?code=" + confirmationCode + "&email=" + user.getEmail());
 
         return templateEngine.process("email-confirmation", context);
+    }
+
+    private String getChangePasswordEmailContent(User user, String confirmationCode) {
+        Context context = new Context();
+        context.setVariable("name", user.getName());
+        context.setVariable("confirmationUrl",
+                "http://localhost:8081/api/v1/users/password-change?code=" + confirmationCode + "&email=" + user.getEmail());
+
+        return templateEngine.process("password-change", context);
     }
 
     public void confirmEmail(String email, String confirmationCode) {
@@ -112,6 +150,63 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception e) {
             log.error("Critical error sending email to: {}", email, e);
         }
+    }
+
+    private String getPendingPassword(String email, String confirmationCode) {
+        String cacheKey = buildCacheKey(email, confirmationCode);
+        String password = null;
+
+        try {
+            Cache cache = cacheManager.getCache("pending_passwords");
+            if (cache != null) {
+                Cache.ValueWrapper wrapper = cache.get(cacheKey);
+                if (wrapper != null) {
+                    password = (String) wrapper.get();
+                    log.debug("Password retrieved via CacheManager: {}", cacheKey);
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to retrieve password from cache for email: {}", email, e);
+        }
+
+        return password;
+    }
+
+    private void clearPendingPassword(String email, String confirmationCode) {
+        String cacheKey = buildCacheKey(email, confirmationCode);
+
+        try {
+            Cache cache = cacheManager.getCache("pending_passwords");
+            if (cache != null) {
+                cache.evict(cacheKey);
+            }
+
+            log.debug("Pending password cleared for email: {}", email);
+
+        } catch (Exception e) {
+            log.error("Failed to clear pending password for email: {}", email, e);
+        }
+    }
+
+    @Override
+    public void confirmPasswordChange(String email, String confirmationCode) {
+        User user = userService.getByEmail(email);
+
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        if (!confirmationCode.equals(user.getConfirmationCode())) {
+            throw new RuntimeException("Invalid confirmation code");
+        }
+
+        user.setPassword(passwordEncoder.encode(getPendingPassword(email, confirmationCode)));
+        clearPendingPassword(email, confirmationCode);
+        user.setConfirmationCode(null);
+        userRepository.save(user);
+
+        log.info("Change password confirmed for user: {}", email);
     }
 
     private void sendOrderReceiptEmail(User user, Properties params) throws MessagingException {
@@ -171,5 +266,9 @@ public class EmailServiceImpl implements EmailService {
         }
 
         return isValid;
+    }
+
+    private String buildCacheKey(String email, String confirmationCode) {
+        return email + ":" + confirmationCode;
     }
 }

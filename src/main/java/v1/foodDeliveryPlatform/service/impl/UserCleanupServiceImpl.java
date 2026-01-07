@@ -18,6 +18,7 @@ public class UserCleanupServiceImpl implements UserCleanupService {
 
     private final UserRepository userRepository;
 
+    @Override
     public void cleanupUnconfirmedUsers() {
         LocalDateTime temp = LocalDateTime.now().minusMinutes(5);
 
@@ -31,6 +32,7 @@ public class UserCleanupServiceImpl implements UserCleanupService {
         }
     }
 
+    @Override
     @Scheduled(cron = "0 */5 * * * ?")
     public void autoCleanup() {
         log.debug("Starting automatic cleanup of unconfirmed users");

@@ -48,7 +48,9 @@ public class RedisConfig {
                 Map.entry("addresses", configWithTtl(Duration.ofHours(2))),
 
                 Map.entry("users_by_email", configWithTtl(Duration.ofHours(1))),
-                Map.entry("user_addresses", configWithTtl(Duration.ofHours(1)))
+                Map.entry("user_addresses", configWithTtl(Duration.ofHours(1))),
+
+                Map.entry("pending_passwords", configWithTtl(Duration.ofMinutes(10)))
         );
 
         return RedisCacheManager.builder(connectionFactory)

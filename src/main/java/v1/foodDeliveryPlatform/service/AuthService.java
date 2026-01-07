@@ -12,4 +12,5 @@ public interface AuthService {
     JwtResponse refresh(String refreshToken);
 
     void authenticate(String email, String password);
+    User restoreUser(String email);
 }

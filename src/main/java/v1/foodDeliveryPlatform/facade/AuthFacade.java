@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 import v1.foodDeliveryPlatform.dto.auth.JwtRequest;
 import v1.foodDeliveryPlatform.dto.auth.JwtResponse;
 import v1.foodDeliveryPlatform.dto.auth.RefreshTokenRequest;
+import v1.foodDeliveryPlatform.dto.auth.RestoreRequest;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
 
 public interface AuthFacade {
@@ -14,4 +15,6 @@ public interface AuthFacade {
     JwtResponse refreshToken(RefreshTokenRequest refreshToken);
 
     void confirmEmail(String email, String code);
+
+    void restoreUser(RestoreRequest request) throws MessagingException;
 }

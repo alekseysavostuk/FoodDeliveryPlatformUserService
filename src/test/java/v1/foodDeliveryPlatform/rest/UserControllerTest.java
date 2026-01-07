@@ -122,8 +122,7 @@ class UserControllerTest {
     @Test
     @WithMockUser
     void changePassword_Success() throws Exception {
-        UserDto userDto = new UserDto();
-        when(userFacade.changePassword(any(UUID.class), any(ChangePasswordRequest.class))).thenReturn(userDto);
+        doNothing().when(userFacade).changePassword(any(UUID.class), any(ChangePasswordRequest.class));
         when(expression.isAccessUser(any(UUID.class))).thenReturn(true);
 
         mockMvc.perform(patch("/api/v1/users/{id}/change-password", userId)

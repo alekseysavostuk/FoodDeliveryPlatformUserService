@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import v1.foodDeliveryPlatform.dto.auth.JwtRequest;
 import v1.foodDeliveryPlatform.dto.auth.JwtResponse;
 import v1.foodDeliveryPlatform.dto.auth.RefreshTokenRequest;
+import v1.foodDeliveryPlatform.dto.auth.RestoreRequest;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
 import v1.foodDeliveryPlatform.dto.validation.OnCreate;
 import v1.foodDeliveryPlatform.facade.AuthFacade;
@@ -42,6 +43,16 @@ public class AuthController {
             @Validated
             @RequestBody JwtRequest jwtRequest) {
         return new ResponseEntity<>(authFacade.getToken(jwtRequest), HttpStatus.OK);
+    }
+
+    @PostMapping("/restore")
+    @PreAuthorize("permitAll()")
+    @Operation(summary = "Restore User")
+    public ResponseEntity<String> restore(
+            @Validated(OnCreate.class)
+            @RequestBody RestoreRequest request) throws MessagingException {
+        authFacade.restoreUser(request);
+        return new ResponseEntity<>("Restore email sent", HttpStatus.OK);
     }
 
     @PostMapping("/register")

@@ -1,5 +1,6 @@
 package v1.foodDeliveryPlatform.facade;
 
+import jakarta.mail.MessagingException;
 import v1.foodDeliveryPlatform.dto.auth.ChangePasswordRequest;
 import v1.foodDeliveryPlatform.dto.auth.PasswordConfirm;
 import v1.foodDeliveryPlatform.dto.model.UserDto;
@@ -19,7 +20,9 @@ public interface UserFacade {
 
     UserDto updateRole(UUID id);
 
-    UserDto changePassword(UUID id, ChangePasswordRequest changePasswordRequest);
+    void changePassword(UUID id, ChangePasswordRequest changePasswordRequest) throws MessagingException;
 
     List<UserDto> getAllUsers();
+
+    void confirmPasswordChange(String email, String code);
 }

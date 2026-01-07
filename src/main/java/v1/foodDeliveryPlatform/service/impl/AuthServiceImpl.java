@@ -89,6 +89,25 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public User restoreUser(String email) {
+        log.info("Restoring user with email: {}", email);
+
+        if (userRepository.findByEmail(email).isEmpty()) {
+            log.warn("User restoring failed - email not taken: {}", email);
+            throw new IllegalStateException("User not taken");
+        }
+        User user = userRepository.findByEmail(email).get();
+        if(user.isEmailConfirmed()){
+            log.warn("User restoring failed - email already confirmed: {}", email);
+            throw new IllegalStateException("User already confirmed");
+        }
+        user.setConfirmationCode(generateConfirmationCode());
+        userRepository.save(user);
+
+        return user;
+    }
+
+    @Override
     @Transactional
     public User createUser(User user) throws MessagingException {
         log.info("Creating new user with email: {}", user.getEmail());

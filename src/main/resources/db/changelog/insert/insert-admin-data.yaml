@@ -19,6 +19,9 @@ databaseChangeLog:
                   name: full_name
                   value: "admin"
               - column:
+                  name: phone_number
+                  value: 375331111111
+              - column:
                   name: created_at
                   valueComputed: CURRENT_TIMESTAMP
               - column:

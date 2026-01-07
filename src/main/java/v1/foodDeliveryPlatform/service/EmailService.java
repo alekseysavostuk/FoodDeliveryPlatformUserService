@@ -10,4 +10,5 @@ public interface EmailService {
     public void sendEmail(User user, MailType type, Properties params) throws MessagingException;
 
     void confirmEmail(String email, String confirmationCode);
+    void confirmPasswordChange(String email, String confirmationCode);
 }

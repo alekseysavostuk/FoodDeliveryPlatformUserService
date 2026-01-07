@@ -2,6 +2,8 @@ package v1.foodDeliveryPlatform.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -27,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final CacheManager cacheManager;
 
     @Override
     @Transactional
@@ -77,12 +79,14 @@ public class UserServiceImpl implements UserService {
             @CacheEvict(value = "users_by_email", allEntries = true)
     })
     public void delete(UUID id) {
-        log.info("Deleting user with ID: {}", id);
+        log.info("Blocking user with ID: {}", id);
         try {
-            userRepository.deleteById(id);
-            log.info("User successfully deleted: {}", id);
+            User user = getById(id);
+            user.setEmailConfirmed(false);
+            userRepository.save(user);
+            log.info("User successfully blocked: {}", id);
         } catch (Exception e) {
-            log.error("Failed to delete user with ID: {}", id, e);
+            log.error("Failed to block user with ID: {}", id, e);
             throw e;
         }
     }
@@ -127,7 +131,11 @@ public class UserServiceImpl implements UserService {
         log.info("Changing password for user ID: {}", id);
 
         User user = getById(id);
-        user.setPassword(passwordEncoder.encode(newRawPassword));
+        String confirmationCode = generateConfirmationCode();
+
+        cachePendingPassword(user.getEmail(), confirmationCode, newRawPassword);
+
+        user.setConfirmationCode(confirmationCode);
         user.setUpdated(LocalDateTime.now());
 
         User updatedUser = userRepository.save(user);
@@ -143,4 +151,32 @@ public class UserServiceImpl implements UserService {
         log.debug("Found {} users", users.size());
         return users;
     }
+
+    private String generateConfirmationCode() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    private void cachePendingPassword(String email, String confirmationCode, String newPassword) {
+        String cacheKey = buildCacheKey(email, confirmationCode);
+
+        try {
+            Cache cache = cacheManager.getCache("pending_passwords");
+            if (cache != null) {
+                cache.put(cacheKey, newPassword);
+                log.debug("Password cached via CacheManager: {}", cacheKey);
+            }
+
+            log.info("New password cached for email: {} with TTL: {} minutes",
+                    email, 10);
+
+        } catch (Exception e) {
+            log.error("Failed to cache password for email: {}", email, e);
+            throw new RuntimeException("Failed to cache password", e);
+        }
+    }
+
+    private String buildCacheKey(String email, String confirmationCode) {
+        return email + ":" + confirmationCode;
+    }
+
 }

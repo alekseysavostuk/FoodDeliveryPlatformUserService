@@ -1,5 +1,6 @@
 package v1.foodDeliveryPlatform.facade.impl;
 
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import v1.foodDeliveryPlatform.dto.auth.ChangePasswordRequest;
@@ -8,10 +9,13 @@ import v1.foodDeliveryPlatform.dto.model.UserDto;
 import v1.foodDeliveryPlatform.facade.UserFacade;
 import v1.foodDeliveryPlatform.mapper.UserMapper;
 import v1.foodDeliveryPlatform.model.User;
+import v1.foodDeliveryPlatform.model.enums.MailType;
 import v1.foodDeliveryPlatform.service.AuthService;
+import v1.foodDeliveryPlatform.service.EmailService;
 import v1.foodDeliveryPlatform.service.UserService;
 
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -22,6 +26,7 @@ public class UserFacadeImpl implements UserFacade {
     private final UserService userService;
     private final AuthService authService;
     private final UserMapper mapper;
+    private final EmailService emailService;
 
     @Override
     public UserDto getById(UUID id) {
@@ -50,14 +55,21 @@ public class UserFacadeImpl implements UserFacade {
     }
 
     @Override
-    public UserDto changePassword(UUID id, ChangePasswordRequest request) {
+    public void changePassword(UUID id, ChangePasswordRequest request) throws MessagingException {
         authService.authenticate(request.getEmail(), request.getOldPassword());
-        return mapper.toDto(userService.changePassword(id, request.getNewPassword()));
+        User user = userService.changePassword(id, request.getNewPassword());
+        emailService.sendEmail(user, MailType.CHANGE_PASSWORD, new Properties());
     }
+
 
     @Override
     public List<UserDto> getAllUsers() {
         List<User> users = userService.getAllUsers();
         return users.stream().map(mapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public void confirmPasswordChange(String email, String code) {
+        emailService.confirmPasswordChange(email, code);
     }
 }
