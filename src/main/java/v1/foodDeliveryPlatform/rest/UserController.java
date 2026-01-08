@@ -49,16 +49,6 @@ public class UserController {
         return new ResponseEntity<>(userFacade.updateUser(userDto), HttpStatus.OK);
     }
 
-//    @PatchMapping("/{id}/change-password")
-//    @Operation(summary = "Update password")
-//    @PreAuthorize("@expression.isAccessUser(#id)")
-//    public ResponseEntity<UserDto> changePassword(
-//            @Validated(OnUpdate.class)
-//            @PathVariable final UUID id,
-//            @RequestBody ChangePasswordRequest changePasswordRequest) {
-//        return new ResponseEntity<>(userFacade.changePassword(id, changePasswordRequest), HttpStatus.OK);
-//    }
-
     @PatchMapping("/{id}/change-password")
     @Operation(summary = "Update password")
     @PreAuthorize("@expression.isAccessUser(#id)")

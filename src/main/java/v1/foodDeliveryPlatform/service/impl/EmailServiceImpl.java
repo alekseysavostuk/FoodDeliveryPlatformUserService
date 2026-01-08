@@ -110,7 +110,7 @@ public class EmailServiceImpl implements EmailService {
         Context context = new Context();
         context.setVariable("name", user.getName());
         context.setVariable("confirmationUrl",
-                "http://localhost:8081/api/v1/auth/confirm-email?code=" + confirmationCode + "&email=" + user.getEmail());
+                "http://localhost/api/v1/auth/confirm-email?code=" + confirmationCode + "&email=" + user.getEmail());
 
         return templateEngine.process("email-confirmation", context);
     }
@@ -119,7 +119,7 @@ public class EmailServiceImpl implements EmailService {
         Context context = new Context();
         context.setVariable("name", user.getName());
         context.setVariable("confirmationUrl",
-                "http://localhost:8081/api/v1/users/password-change?code=" + confirmationCode + "&email=" + user.getEmail());
+                "http://localhost/api/v1/users/password-change?code=" + confirmationCode + "&email=" + user.getEmail());
 
         return templateEngine.process("password-change", context);
     }
